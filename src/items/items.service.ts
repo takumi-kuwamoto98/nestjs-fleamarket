@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Item } from './dto/items.model';
-
+import { CreateItemDto } from './dto/create-item.dto';
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class ItemsService {
   private items: Item[] = [];
@@ -9,10 +10,15 @@ export class ItemsService {
   }
 
   findById(id: string): Item {
-    return this.items.find((item) => item.id === id);
+    const found = this.items.find((item) => item.id === id);
+    if (!found) {
+      throw new NotFoundException();
+    }
+    return found;
   }
 
-  create(item: Item) {
+  create(createItemDto: CreateItemDto): Item {
+    const item: Item = { id: uuidv4(), ...createItemDto, status: 'ON_SALE' };
     this.items.push(item);
     return item;
   }
